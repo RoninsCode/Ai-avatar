@@ -2,18 +2,34 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Smiley</title>
+  <title>Viele Smileys</title>
   <style>
     body {
-      display: flex;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+      grid-auto-rows: 100px;
+      justify-items: center;
       align-items: center;
+      font-size: 50px;
+      margin: 0;
       height: 100vh;
-      font-size: 100px;
+      overflow: hidden;
+    }
+    .smiley {
+      font-size: 3rem;
     }
   </style>
 </head>
 <body>
-  😊
+  <script>
+    // Anzahl der Smileys auf der Seite
+    const smileyCount = 200;
+    for (let i = 0; i < smileyCount; i++) {
+      const span = document.createElement("span");
+      span.className = "smiley";
+      span.textContent = "😊";
+      document.body.appendChild(span);
+    }
+  </script>
 </body>
 </html>
