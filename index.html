@@ -127,7 +127,13 @@
       window.addEventListener('resize', resize, { passive: true });
       resize();
 
-      const STAR_COUNT = Math.min(800, Math.floor((w * h) / 2500));
+      // detect mobile (roughly)
+      const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+
+      // adjust star count for mobile
+      let baseStarCount = Math.min(800, Math.floor((w * h) / 2500));
+      const STAR_COUNT = isMobile ? Math.floor(baseStarCount * 1.25) : baseStarCount;
+
       const FOV = 380;
       const SPEED_BASE = 0.02;
 
@@ -147,9 +153,6 @@
         resetStar(s);
         stars.push(s);
       }
-
-      // detect mobile (roughly)
-      const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
 
       let last = performance.now();
 
@@ -182,13 +185,11 @@
           ctx.globalAlpha = twinkle * 0.9;
 
           if (isMobile) {
-            // Mobile: simple round stars
             ctx.beginPath();
             ctx.arc(x, y, size, 0, Math.PI * 2);
             ctx.fillStyle = `rgba(200,220,255,0.95)`;
             ctx.fill();
           } else {
-            // Desktop: spiky stars
             ctx.save();
             ctx.translate(x, y);
             ctx.rotate(s.tw);
