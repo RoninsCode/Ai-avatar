@@ -1,15 +1,71 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Envolate </title>
-  <script type="module" src="https://unpkg.com/@google/model-viewer/dist/model-viewer.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>How to build Robots?</title>
   <style>
-    body { margin:0; display:grid; place-items:center; height:100vh; background:#fff; }
-    model-viewer { width: 400px; height: 600px; }
-  </style>
-</head>
-<body>
-  <h2>How to Build a Robot?</h2>
-</body>
-</html>
+    :root {
+      --bg: #05060a;
+      --fg: #eaf2ff;
+      --accent: #7aa7ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      margin: 0;
+      background: radial-gradient(1200px 800px at 50% -200px, #0a0d18 0%, var(--bg) 50%, #000 100%);
+      color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      overflow: hidden; /* keep scrollbars off for the starfield */
+    }
+
+    /* Canvas covers the whole screen */
+    #stars {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: transparent;
+    }
+
+    /* Content wrapper */
+    .hero {
+      position: relative;
+      z-index: 1;
+      height: 100dvh;
+      display: grid;
+      place-items: center;
+      text-align: center;
+      padding: 2rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      line-height: 1.05;
+      font-size: clamp(2rem, 6vw + 1rem, 6rem);
+      text-shadow:
+        0 0 10px rgba(122, 167, 255, 0.25),
+        0 0 30px rgba(122, 167, 255, 0.15);
+    }
+
+    .sub {
+      margin-top: 1rem;
+      font-size: clamp(0.95rem, 1.2vw + 0.5rem, 1.35rem);
+      opacity: 0.85;
+    }
+
+    /* Subtle animated underline accent */
+    .underline {
+      position: relative;
+      display: inline-block;
+    }
+    .underline::after {
+      content: "";
+      position: absolute;
+      left: 0; right: 0; bottom: -0.35em;
+      height: 3px;
+      border-r
