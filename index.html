@@ -19,10 +19,9 @@
       background: radial-gradient(1200px 800px at 50% -200px, #0a0d18 0%, var(--bg) 50%, #000 100%);
       color: var(--fg);
       font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Ubuntu, Cantarell, Noto Sans, Arial, "Apple Color Emoji", "Segoe UI Emoji";
-      overflow: hidden; /* keep scrollbars off for the starfield */
+      overflow: hidden;
     }
 
-    /* Canvas covers the whole screen */
     #stars {
       position: fixed;
       inset: 0;
@@ -30,7 +29,6 @@
       background: transparent;
     }
 
-    /* Content wrapper */
     .hero {
       position: relative;
       z-index: 1;
@@ -58,7 +56,6 @@
       opacity: 0.85;
     }
 
-    /* Subtle animated underline accent */
     .underline {
       position: relative;
       display: inline-block;
@@ -79,7 +76,6 @@
       50%     { transform: translateX(40%);  opacity: 0.9; }
     }
 
-    /* Small call-to-action placeholder; easy to remove */
     .cta {
       margin-top: 2rem;
       display: inline-flex;
@@ -106,13 +102,11 @@
     <div>
       <h1><span class="underline">How to build Robots?</span></h1>
       <p class="sub">A star-guided journey through mechanics, code, and curiosity.</p>
-      <!-- Optional button; remove if not needed -->
       <a class="cta" href="#" onclick="event.preventDefault()">Start the Guide (coming soon)</a>
     </div>
   </main>
 
   <script>
-    // Simple, efficient starfield with perspective and twinkle
     (function() {
       const canvas = document.getElementById('stars');
       const ctx = canvas.getContext('2d');
@@ -123,7 +117,7 @@
       function resize() {
         w = canvas.clientWidth = window.innerWidth;
         h = canvas.clientHeight = window.innerHeight;
-        deviceScale = DPR; // keep capped for perf
+        deviceScale = DPR;
         canvas.width = Math.floor(w * deviceScale);
         canvas.height = Math.floor(h * deviceScale);
         ctx.setTransform(deviceScale, 0, 0, deviceScale, 0, 0);
@@ -133,21 +127,19 @@
       window.addEventListener('resize', resize, { passive: true });
       resize();
 
-      // Star parameters
       const STAR_COUNT = Math.min(800, Math.floor((w * h) / 2500));
-      const FOV = 380; // pseudo field of view (larger -> slower spread)
-      const SPEED_BASE = 0.02; // base speed factor
+      const FOV = 380;
+      const SPEED_BASE = 0.02;
 
       const stars = [];
 
       function resetStar(s) {
-        // Position stars in 3D space around camera looking into +z
         s.x = (Math.random() * 2 - 1) * w;
         s.y = (Math.random() * 2 - 1) * h;
-        s.z = Math.random() * 1 + 0.2; // depth 0.2..1.2 (near->far)
+        s.z = Math.random() * 1 + 0.2;
         s.pz = s.z;
-        s.tw = Math.random() * 6.283; // twinkle phase
-        s.sz = Math.random() * 0.9 + 0.1; // star base size
+        s.tw = Math.random() * 6.283;
+        s.sz = Math.random() * 0.9 + 0.1;
       }
 
       for (let i = 0; i < STAR_COUNT; i++) {
@@ -159,48 +151,57 @@
       let last = performance.now();
 
       function loop(now) {
-        const dt = Math.min(0.033, (now - last) / 1000); // clamp dt to avoid jumps
+        const dt = Math.min(0.033, (now - last) / 1000);
         last = now;
 
         ctx.clearRect(0, 0, w, h);
 
-        // Slight parallax drift based on mouse
         const driftX = (mouse.x - cx) * 0.0008;
         const driftY = (mouse.y - cy) * 0.0008;
 
         for (let i = 0; i < STAR_COUNT; i++) {
           const s = stars[i];
-          s.z -= (SPEED_BASE + driftSpeed) * dt; // move towards camera
+          s.z -= (SPEED_BASE + driftSpeed) * dt;
 
           if (s.z <= 0.05 || s.x + cx < -w || s.x + cx > w || s.y + cy < -h || s.y + cy > h) {
             resetStar(s);
             continue;
           }
 
-          // Perspective projection
           const k = FOV / (FOV + s.z * 100);
           const x = cx + (s.x + driftX * 200) * k;
           const y = cy + (s.y + driftY * 200) * k;
 
-          // Twinkle & size
           s.tw += dt * 5;
           const twinkle = 0.6 + 0.4 * Math.sin(s.tw + i * 0.618);
           const size = Math.max(0.5, s.sz * (1.8 - s.z * 1.2));
 
           ctx.globalAlpha = twinkle * 0.9;
+
+          // Instead of round points, draw sharper star shapes
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(s.tw);
           ctx.beginPath();
-          ctx.arc(x, y, size, 0, Math.PI * 2);
+          const spikes = 4;
+          const outerRadius = size * 2.2;
+          const innerRadius = size * 0.6;
+          for (let j = 0; j < spikes * 2; j++) {
+            const radius = j % 2 === 0 ? outerRadius : innerRadius;
+            const angle = (j * Math.PI) / spikes;
+            ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+          }
+          ctx.closePath();
           ctx.fillStyle = `rgba(200,220,255,0.95)`;
           ctx.shadowColor = '#7aa7ff';
-          ctx.shadowBlur = 12 * twinkle;
+          ctx.shadowBlur = 8 * twinkle;
           ctx.fill();
-          ctx.shadowBlur = 0;
+          ctx.restore();
         }
 
         requestAnimationFrame(loop);
       }
 
-      // Mouse influence for subtle parallax and speed-up when moving
       const mouse = { x: cx || 0, y: cy || 0 };
       let lastMouseMove = 0;
       let driftSpeed = 0;
@@ -210,7 +211,6 @@
         lastMouseMove = performance.now();
       }, { passive: true });
 
-      // Touch support
       window.addEventListener('touchmove', (e) => {
         if (e.touches && e.touches[0]) {
           mouse.x = e.touches[0].clientX; mouse.y = e.touches[0].clientY;
@@ -218,10 +218,9 @@
         }
       }, { passive: true });
 
-      // Speed easing based on recent pointer movement
       function updateDriftSpeed() {
         const elapsed = performance.now() - lastMouseMove;
-        const target = elapsed < 150 ? 0.15 : 0.02; // faster when recently moved
+        const target = elapsed < 150 ? 0.15 : 0.02;
         driftSpeed += (target - driftSpeed) * 0.05;
         requestAnimationFrame(updateDriftSpeed);
       }
