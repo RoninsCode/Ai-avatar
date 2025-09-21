@@ -148,6 +148,9 @@
         stars.push(s);
       }
 
+      // detect mobile (roughly)
+      const isMobile = /Mobi|Android/i.test(navigator.userAgent) || window.innerWidth < 768;
+
       let last = performance.now();
 
       function loop(now) {
@@ -178,25 +181,33 @@
 
           ctx.globalAlpha = twinkle * 0.9;
 
-          // Instead of round points, draw sharper star shapes
-          ctx.save();
-          ctx.translate(x, y);
-          ctx.rotate(s.tw);
-          ctx.beginPath();
-          const spikes = 4;
-          const outerRadius = size * 2.2;
-          const innerRadius = size * 0.6;
-          for (let j = 0; j < spikes * 2; j++) {
-            const radius = j % 2 === 0 ? outerRadius : innerRadius;
-            const angle = (j * Math.PI) / spikes;
-            ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+          if (isMobile) {
+            // Mobile: simple round stars
+            ctx.beginPath();
+            ctx.arc(x, y, size, 0, Math.PI * 2);
+            ctx.fillStyle = `rgba(200,220,255,0.95)`;
+            ctx.fill();
+          } else {
+            // Desktop: spiky stars
+            ctx.save();
+            ctx.translate(x, y);
+            ctx.rotate(s.tw);
+            ctx.beginPath();
+            const spikes = 4;
+            const outerRadius = size * 2.2;
+            const innerRadius = size * 0.6;
+            for (let j = 0; j < spikes * 2; j++) {
+              const radius = j % 2 === 0 ? outerRadius : innerRadius;
+              const angle = (j * Math.PI) / spikes;
+              ctx.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+            }
+            ctx.closePath();
+            ctx.fillStyle = `rgba(200,220,255,0.95)`;
+            ctx.shadowColor = '#7aa7ff';
+            ctx.shadowBlur = 8 * twinkle;
+            ctx.fill();
+            ctx.restore();
           }
-          ctx.closePath();
-          ctx.fillStyle = `rgba(200,220,255,0.95)`;
-          ctx.shadowColor = '#7aa7ff';
-          ctx.shadowBlur = 8 * twinkle;
-          ctx.fill();
-          ctx.restore();
         }
 
         requestAnimationFrame(loop);
